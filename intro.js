@@ -174,6 +174,7 @@
     word('w1', 200); word('w2', 340); word('w3', 480); word('w4', 620);
     up(R('perks'), 800, 36, 1240); up(R('lead'), 800, 36, 1360); up(R('cta'), 800, 36, 1480);
     await up(R('socials'), 800, 36, 1600);
+    root.classList.remove('intro');
   }
 
   if (reduce) {
