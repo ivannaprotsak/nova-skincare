@@ -1,0 +1,267 @@
+<title>NOVA Hero</title>
+<meta name="description" content="NOVA — organic skincare with 3–5 essential ingredients, created for sensitive skin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap">
+<style>
+/* Layout: the 1920×1080 Figma frame is rebuilt 1:1 in px and scaled as one stage (--s).
+   The stage stays centred in the window, so the headline and copy keep their composition;
+   the stone grows from under the bottle until it reaches the window's right and bottom edges,
+   the leaf shadows and the bottom fade are pinned to the window's corners and edges (--*-edge, in stage px);
+   the header lives outside the stage, pinned to the top: logo left, menu centred, icons right.
+   Intro plays on its own: close-up of the pipette dripping → camera pulls back → stone → the rest of the hero. */
+@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-Regular.woff") format("woff");font-weight:400;font-display:block}
+@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-SemiBold.woff") format("woff");font-weight:600;font-display:block}
+
+:root{
+  --olive:#626d3a;        /* headlines, logo, buttons */
+  --olive-deep:#384310;   /* shadows under the bottle */
+  --ink:#54433c;          /* body text */
+  --muted:#a8a395;        /* "3–5 essential ingredients" */
+  --sage:#e2e5d2;         /* page background */
+  --display:"Heuvel Grotesk","Helvetica Neue",Arial,sans-serif;
+  --text:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+html,body{margin:0;background:var(--sage)}
+body{color:var(--ink);font-family:var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:4px}
+
+.viewport{position:relative;height:100vh;height:100svh;overflow:hidden;background:var(--sage)}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;
+  transform:translate(var(--stage-x,0px),var(--stage-y,0px)) scale(var(--s,1))}
+
+/* ---------- background layers ---------- */
+.stone{position:absolute;left:591px;top:709px;width:1329px;height:371px;transform-origin:537.85px 231px;transform:scale(var(--stone-k,1))} /* pivot = where the bottle stands */
+.stone img{width:100%;height:100%;display:block}
+.fade{position:absolute;left:var(--left-edge,0px);top:calc(var(--bottom-edge,1080px) - 170px);width:calc(var(--right-edge,1920px) - var(--left-edge,0px));height:170px}
+.fade img{width:100%;height:100%;display:block;max-width:none}
+.leaf{position:absolute;pointer-events:none}
+.leaf img{display:block;max-width:none}
+.leaf--1{left:calc(var(--right-edge,1920px) - 730px);top:var(--top-edge,0px);width:730px;height:706px} /* pinned to the window's top-right corner */
+.leaf--2{left:var(--left-edge,0px);top:calc(var(--bottom-edge,1080px) - 472px);width:541px;height:472px;-webkit-mask-image:linear-gradient(to bottom,#000 80%,transparent);mask-image:linear-gradient(to bottom,#000 80%,transparent)}
+/* the shadows hinge on the corner they grow from, so the cut edges stay off-screen */
+.sway{position:absolute;inset:0}
+.leaf--1 .sway{transform-origin:100% 0;animation:sway1 7s ease-in-out infinite alternate}
+.leaf--2 .sway{transform-origin:0 100%;animation:sway2 9s ease-in-out infinite alternate}
+@keyframes sway1{
+  0%{transform:translate(6px,-4px) rotate(.3deg) skewX(0) scale(1.03)}
+  30%{transform:translate(14px,-10px) rotate(2deg) skewX(-1.2deg) scale(1.04)}
+  60%{transform:translate(8px,-2px) rotate(.8deg) skewX(.6deg) scale(1.03)}
+  100%{transform:translate(18px,-12px) rotate(2.6deg) skewX(-.8deg) scale(1.05)}}
+@keyframes sway2{
+  0%{transform:translate(-6px,4px) rotate(.2deg) scale(1.03)}
+  35%{transform:translate(-16px,10px) rotate(1.8deg) skewX(1deg) scale(1.05)}
+  70%{transform:translate(-8px,2px) rotate(.6deg) skewX(-.6deg) scale(1.03)}
+  100%{transform:translate(-18px,12px) rotate(2.4deg) skewX(.8deg) scale(1.05)}}
+
+/* ---------- header: pinned to the top of the window, scaled with the stage ---------- */
+.hdr{position:absolute;inset:0 0 auto;height:0;z-index:5}
+.logo{position:absolute;left:calc(69px * var(--s,1));top:calc(65px * var(--s,1));margin:0;transform:scale(var(--s,1));transform-origin:0 0;
+  font:600 56px/normal var(--display);color:var(--olive)}
+.nav{position:absolute;left:calc(50% - 8px * var(--s,1));top:calc(78px * var(--s,1));display:flex;gap:20px;transform:translateX(-50%) scale(var(--s,1));transform-origin:50% 0;
+  font:400 18px/normal var(--text);letter-spacing:-.18px;white-space:nowrap}
+.nav a{transition:color .25s}
+.nav a:hover{color:var(--olive)}
+.icons{position:absolute;right:calc(70px * var(--s,1));top:calc(70px * var(--s,1));display:flex;gap:20px;transform:scale(var(--s,1));transform-origin:100% 0}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:block;transition:transform .25s}
+.icon-btn svg{display:block}
+.icon-btn:hover{transform:scale(1.08)}
+
+/* ---------- headline ---------- */
+.word{position:absolute;margin:0;font:400 234px/1 var(--display);letter-spacing:-14.04px;text-transform:uppercase;color:var(--olive);white-space:nowrap;overflow:hidden;padding:0 40px 4px 0}
+.word span{display:block}
+.w-less{left:70px;top:260px}.w-ingredients{left:609px;top:260px}
+.w-more{left:361px;top:483px}.w-care{left:1313px;top:483px}
+
+/* ---------- copy ---------- */
+.perks{position:absolute;left:70px;top:494px;margin:0;padding:0;list-style:none;font:400 18px/22px var(--text);letter-spacing:-.18px;white-space:nowrap}
+.perks li+li{margin-top:14px}
+.lead{position:absolute;left:372px;top:715px;width:394px;margin:0;font:400 24px/normal var(--text);letter-spacing:-.72px}
+.lead em{font-style:normal;color:var(--muted)}
+.cta{position:absolute;left:372px;top:826px;display:flex;align-items:center;gap:16px;padding:6px 6px 6px 16px;
+  border:2px solid var(--olive);border-radius:38px;font:400 24px/normal var(--text);letter-spacing:-.72px;color:var(--olive);white-space:nowrap;
+  transition:background-color .35s ease,color .35s ease}
+.cta svg{display:block;transition:transform .35s ease}
+.cta svg path{transition:fill .35s ease}
+.cta:hover,.cta:focus-visible{background:var(--olive);color:var(--sage)}
+.cta:hover svg path,.cta:focus-visible svg path{fill:var(--sage)}
+.cta:hover svg{transform:translateX(4px)}
+.socials{position:absolute;top:715px;left:0;margin:0;padding:0;list-style:none;font:400 24px/29px var(--text);letter-spacing:-.72px}
+.socials a{position:absolute;top:0;white-space:nowrap;padding-bottom:2px;border-bottom:1px solid var(--ink);transition:color .25s,border-color .25s}
+.socials a:hover{color:var(--olive);border-color:var(--olive)}
+
+/* ---------- bottle ---------- */
+/* The intro uses two separate renders (open bottle + pipette); once the pipette is home
+   they cross-fade into the single bottle render from the design. */
+.bottle{position:absolute;left:907.85px;top:309px;width:453px;height:663px;transform-origin:221px 125px;
+  --lift:0;--tilt:0}
+.bottle .el6{position:absolute;left:110.66px;top:580px;width:268px;height:103px}
+.bottle .el5{position:absolute;left:109.7px;top:578.1px;width:225px;height:71px}
+/* soft reflection: pre-blurred (27px) at 10% so nothing is filtered at run time */
+.bottle .ghost{position:absolute;left:-9.01px;top:9.54px;width:543px;height:734px}
+.bottle .ghost img{width:100%;height:100%;display:block;max-width:none}
+.bottle .final{position:absolute;left:0;top:0;width:442px;height:663px;display:block;max-width:none}
+/* open-bottle render (1024×1536), fitted onto the design bottle's body */
+.bottle .open{position:absolute;left:34.12px;top:131.65px;width:375.52px;height:531.17px;display:block;max-width:none}
+/* pipette: 1086×1448 render scaled so its collar matches the design collar (156px) */
+.bottle .pip{position:absolute;left:-26.07px;top:4.75px;width:494.13px;height:658.84px;max-width:none;display:block;
+  transform-origin:247.07px 623.8px;           /* the glass tip */
+  transform:translateY(calc(var(--lift) * -1px)) rotate(calc(var(--tilt) * 1deg))}
+/* the cap is cut straight from the design render, so it looks the same zoomed in and screwed shut */
+.bottle .cap{position:absolute;left:0;top:0;width:442px;height:663px;clip-path:inset(0 143px 400px 143px);
+  transform-origin:221px 628.6px;            /* same pivot as the glass tip */
+  transform:translateY(calc(var(--lift) * -1px)) rotate(calc(var(--tilt) * 1deg))}
+.bottle .cap img{width:100%;height:100%;display:block;max-width:none}
+.bottle .pip-liq{overflow:visible}   /* collar and bulb sit in front of the neck */
+.bottle .stream{position:absolute;left:191px;top:0;width:60px;height:300px;overflow:visible;pointer-events:none}
+.bottle .splash{position:absolute;left:171px;top:169px;width:100px;height:16px;opacity:0;overflow:visible}
+/* before the intro runs, everything except the bottle waits off-stage */
+.intro [data-r]:not([data-r=bottle]){opacity:0}
+.intro .word span{transform:translateY(105%)}
+.intro .bottle{opacity:0}
+/* not 0: a hair of opacity keeps these painted, so they are ready when they fade in mid-zoom */
+.intro .bottle .el5,.intro .bottle .el6,.intro .bottle .ghost,.intro .bottle .final{opacity:.001}
+.intro .stage .stone[data-r]{opacity:.001}
+@media (prefers-reduced-motion:reduce){.sway{animation:none}}
+</style>
+
+<script>document.documentElement.classList.add("intro")</script>
+<div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+
+      <div class="stone" data-r="stone"><img src="assets/img/stone-baked.png" alt=""></div>
+      <div class="fade" data-r="fade"><img src="assets/img/bottom-fade.png" alt=""></div>
+      <div class="leaf leaf--1" data-r="leaf"><div class="sway"><img src="assets/img/leaf-1-green.png" width="730" height="706" alt=""></div></div>
+      <div class="leaf leaf--2" data-r="leaf"><div class="sway"><img src="assets/img/leaf-2-baked.png" width="541" height="472" alt=""></div></div>
+
+      <h1 class="word w-less" data-r="w1"><span>Less</span></h1>
+      <p class="word w-ingredients" data-r="w2" aria-hidden="true"><span>Ingredients</span></p>
+      <p class="word w-more" data-r="w3" aria-hidden="true"><span>More</span></p>
+
+      <ul class="socials" data-r="socials">
+        <li><a href="#" style="left:1524px">Facebook</a></li>
+        <li><a href="#" style="left:1651px">Instagram</a></li>
+        <li><a href="#" style="left:1779px">TikTok</a></li>
+      </ul>
+
+      <p class="word w-care" data-r="w4" aria-hidden="true"><span>Care</span></p>
+
+      <p class="lead" data-r="lead">Thoughtfully formulated skincare with just <em>3–5 essential ingredients,</em><br>created for sensitive skin</p>
+      <a class="cta" href="#" data-r="cta">Find your routine
+        <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><path fill="#626D3A" d="M0 20C0 8.955 8.955 0 20 0C31.045 0 40 8.955 40 20C40 31.045 31.045 40 20 40C8.955 40 0 31.045 0 20ZM20.3667 11.6167C20.1326 11.851 20.0011 12.1687 20.0011 12.5C20.0011 12.8313 20.1326 13.149 20.3667 13.3833L25.7333 18.75H11.25C10.9185 18.75 10.6005 18.8817 10.3661 19.1161C10.1317 19.3505 10 19.6685 10 20C10 20.3315 10.1317 20.6495 10.3661 20.8839C10.6005 21.1183 10.9185 21.25 11.25 21.25H25.7333L20.3667 26.6167C20.2439 26.7311 20.1454 26.8691 20.077 27.0224C20.0087 27.1758 19.972 27.3413 19.969 27.5091C19.9661 27.677 19.9969 27.8437 20.0598 27.9993C20.1227 28.155 20.2162 28.2964 20.3349 28.4151C20.4536 28.5338 20.595 28.6273 20.7507 28.6902C20.9063 28.7531 21.073 28.7839 21.2409 28.781C21.4087 28.778 21.5742 28.7413 21.7276 28.673C21.8809 28.6046 22.0189 28.5061 22.1333 28.3833L29.6333 20.8833C29.8674 20.649 29.9989 20.3313 29.9989 20C29.9989 19.6687 29.8674 19.351 29.6333 19.1167L22.1333 11.6167C21.899 11.3826 21.5813 11.2511 21.25 11.2511C20.9187 11.2511 20.601 11.3826 20.3667 11.6167Z"/></svg>
+      </a>
+
+
+
+      <div class="bottle" id="bottle" data-r="bottle">
+        <img class="el6" src="assets/img/shadow-soft.png" alt="">
+        <img class="el5" src="assets/img/shadow-contact.png" alt="">
+        <div class="ghost"><img src="assets/img/bottle-ghost.png" alt=""></div>
+
+        <img class="pip pip--back" src="assets/img/pipette-tube.png" alt="">
+        <svg class="pip pip-liq" viewBox="0 0 1086 1448" aria-hidden="true">
+          <defs>
+            <clipPath id="liqClip"><rect id="liqClipRect" x="480" y="1120" width="130" height="400"/></clipPath>
+            <clipPath id="tubeInner"><path d="M503 0V1236C503 1258 520 1268 521 1292A36 38 0 1 0 561 1292C562 1268 581 1258 581 1236V0Z"/></clipPath>
+            <linearGradient id="liqFill" x1="503" x2="581" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#56653f" stop-opacity=".26"/><stop offset=".18" stop-color="#fff" stop-opacity=".22"/>
+              <stop offset=".5" stop-color="#f6efc9" stop-opacity=".16"/><stop offset=".85" stop-color="#8a8f62" stop-opacity=".12"/><stop offset="1" stop-color="#56653f" stop-opacity=".28"/></linearGradient>
+          </defs>
+          <g clip-path="url(#tubeInner)">
+            <rect id="liqBody" x="490" y="1120" width="110" height="330" fill="url(#liqFill)"/>
+            <path id="liqTop" d="M503 1120Q542 1136 581 1120" fill="none" stroke="#4f5d3a" stroke-opacity=".42" stroke-width="3.5"/>
+            <path id="liqTopHi" d="M503 1126Q542 1142 581 1126" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="3"/>
+            <!-- air bubbles suspended in the oil -->
+            <g clip-path="url(#liqClip)">
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -7.2;0 0" dur="2.60s" repeatCount="indefinite"/>
+                <circle cx="520" cy="1140" r="8.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="517.1" cy="1136.9" r="2.2" fill="#fff" fill-opacity=".95"/>
+                <path d="M515.3 1143.6Q520 1146.8 524.7 1143.6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -5.5;0 0" dur="3.00s" repeatCount="indefinite"/>
+                <circle cx="559" cy="1170" r="5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="557.3" cy="1168.2" r="1.3" fill="#fff" fill-opacity=".95"/>
+                <path d="M556.2 1172.1Q559 1174.0 561.8 1172.1" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -8.5;0 0" dur="3.40s" repeatCount="indefinite"/>
+                <circle cx="537" cy="1206" r="11" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="533.3" cy="1202.0" r="2.9" fill="#fff" fill-opacity=".95"/>
+                <path d="M531.0 1210.6Q537 1214.8 543.0 1210.6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -6.2;0 0" dur="3.80s" repeatCount="indefinite"/>
+                <circle cx="567" cy="1240" r="6.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="564.8" cy="1237.7" r="1.7" fill="#fff" fill-opacity=".95"/>
+                <path d="M563.4 1242.7Q567 1245.2 570.6 1242.7" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -5.8;0 0" dur="2.60s" repeatCount="indefinite"/>
+                <circle cx="516" cy="1262" r="5.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="514.1" cy="1260.0" r="1.4" fill="#fff" fill-opacity=".95"/>
+                <path d="M513.0 1264.3Q516 1266.4 519.0 1264.3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -7.0;0 0" dur="3.00s" repeatCount="indefinite"/>
+                <circle cx="548" cy="1284" r="8" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="545.3" cy="1281.1" r="2.1" fill="#fff" fill-opacity=".95"/>
+                <path d="M543.6 1287.4Q548 1290.4 552.4 1287.4" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -6.0;0 0" dur="3.40s" repeatCount="indefinite"/>
+                <circle cx="530" cy="1312" r="6" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="528.0" cy="1309.8" r="1.6" fill="#fff" fill-opacity=".95"/>
+                <path d="M526.7 1314.5Q530 1316.8 533.3 1314.5" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -7.5;0 0" dur="3.80s" repeatCount="indefinite"/>
+                <circle cx="553" cy="1334" r="9" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
+                <circle cx="549.9" cy="1330.8" r="2.3" fill="#fff" fill-opacity=".95"/>
+                <path d="M548.0 1337.8Q553 1341.2 558.0 1337.8" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
+            </g>
+          </g>
+        </svg>
+        <img class="open" src="assets/img/bottle-open.png" alt="">
+        <img class="final" src="assets/img/bottle@3x.png" alt="NOVA organic skincare serum bottle">
+        <div class="cap"><img src="assets/img/bottle@3x.png" alt=""></div>
+        <svg class="splash" id="splash" viewBox="0 0 100 16" aria-hidden="true"><ellipse cx="50" cy="8" rx="44" ry="5.5" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.6"/><ellipse cx="50" cy="9" rx="44" ry="5.5" fill="none" stroke="#4a5240" stroke-opacity=".3" stroke-width=".8"/></svg>
+        <svg class="stream" id="stream" viewBox="0 0 60 300" aria-hidden="true">
+          <defs>
+            <linearGradient id="threadFill" x1="0" x2="1">
+              <stop offset="0" stop-color="#56653f" stop-opacity=".6"/><stop offset=".12" stop-color="#6d7463" stop-opacity=".28"/>
+              <stop offset=".3" stop-color="#fffbea" stop-opacity=".3"/><stop offset=".5" stop-color="#f3ebc4" stop-opacity=".12"/>
+              <stop offset=".82" stop-color="#8d9483" stop-opacity=".16"/><stop offset="1" stop-color="#56653f" stop-opacity=".62"/></linearGradient>
+            <radialGradient id="dropFill" cx=".45" cy=".42" r=".62">
+              <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".02"/>
+              <stop offset=".72" stop-color="#f3ebc4" stop-opacity=".16"/><stop offset=".88" stop-color="#6d7463" stop-opacity=".38"/><stop offset="1" stop-color="#56653f" stop-opacity=".62"/></radialGradient>
+            <clipPath id="rim"><rect id="rimRect" x="-40" y="-20" width="140" height="200"/></clipPath>
+          </defs>
+          <g clip-path="url(#rim)">
+            <g id="hang">
+              <path id="threadPath" fill="url(#threadFill)"/>
+              <path id="bulbShade" fill="url(#dropFill)"/>
+              <path id="threadEdge" fill="none" stroke="#56653f" stroke-opacity=".4" stroke-width="1"/>
+              <ellipse id="hangHi" fill="#fff" fill-opacity=".9"/>
+              <path id="hangRef" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.6" stroke-linecap="round"/>
+            </g>
+            <g id="fall" opacity="0">
+              <path id="fallPath" fill="url(#threadFill)" stroke="#56653f" stroke-opacity=".4" stroke-width="1"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+
+
+
+      <ul class="perks" data-r="perks"><li>Simple formulas</li><li>Thoughtful care</li><li>Sensitive skin</li></ul>
+    </div>
+  <header class="hdr">
+    <p class="logo" data-r="logo">NOVA</p>
+    <nav class="nav" data-r="nav" aria-label="Main">
+        <a href="#">Shop</a><a href="#">Find Your Routine</a><a href="#">Our Philosophy</a><a href="#">Ingredients</a><a href="#">Contact Us</a>
+      </nav>
+    <div class="icons" data-r="icons">
+      <a class="icon-btn icon-btn--search" href="#" aria-label="Search">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#626D3A"/><path d="M24.0625 23.0625L27.8125 26.8125" stroke="#E2E5D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.375 24.3125C22.6542 24.3125 25.3125 21.6542 25.3125 18.375C25.3125 15.0958 22.6542 12.4375 19.375 12.4375C16.0958 12.4375 13.4375 15.0958 13.4375 18.375C13.4375 21.6542 16.0958 24.3125 19.375 24.3125Z" stroke="#E2E5D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="icon-btn icon-btn--cart" href="#" aria-label="Cart">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#626D3A"/><path d="M28.3498 16.1667C28.1914 15.8923 27.9646 15.6636 27.6915 15.5029C27.4184 15.3423 27.1083 15.2551 26.7915 15.25H15.0582L14.5265 13.1784C14.4728 12.9784 14.353 12.8025 14.1865 12.6793C14.0201 12.5561 13.8168 12.4929 13.6099 12.5H11.7765C11.5334 12.5 11.3003 12.5966 11.1283 12.7685C10.9564 12.9404 10.8599 13.1736 10.8599 13.4167C10.8599 13.6598 10.9564 13.893 11.1283 14.0649C11.3003 14.2368 11.5334 14.3334 11.7765 14.3334H12.9132L15.4432 23.7383C15.4969 23.9383 15.6167 24.1142 15.7832 24.2374C15.9496 24.3606 16.1529 24.4238 16.3598 24.4167H24.6098C24.7791 24.4162 24.9449 24.3688 25.0889 24.2798C25.2329 24.1908 25.3495 24.0637 25.4256 23.9125L28.4323 17.8992C28.5626 17.626 28.6233 17.3249 28.6089 17.0226C28.5945 16.7203 28.5055 16.4262 28.3498 16.1667ZM24.0415 22.5833H17.0565L15.5623 17.0834H26.7915L24.0415 22.5833Z" fill="#E2E5D2"/><path d="M15.9014 29C16.6608 29 17.2764 28.3844 17.2764 27.625C17.2764 26.8656 16.6608 26.25 15.9014 26.25C15.142 26.25 14.5264 26.8656 14.5264 27.625C14.5264 28.3844 15.142 29 15.9014 29Z" fill="#E2E5D2"/><path d="M25.0684 29C25.8277 29 26.4434 28.3844 26.4434 27.625C26.4434 26.8656 25.8277 26.25 25.0684 26.25C24.309 26.25 23.6934 26.8656 23.6934 27.625C23.6934 28.3844 24.309 29 25.0684 29Z" fill="#E2E5D2"/></svg>
+      </a>
+      <a class="icon-btn icon-btn--user" href="#" aria-label="Account">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#626D3A"/><path d="M20.5 20C21.3476 20 22.1762 19.7654 22.881 19.3259C23.5858 18.8864 24.1351 18.2616 24.4595 17.5307C24.7839 16.7998 24.8687 15.9956 24.7034 15.2196C24.538 14.4437 24.1298 13.731 23.5305 13.1716C22.9311 12.6122 22.1674 12.2312 21.3361 12.0769C20.5048 11.9225 19.643 12.0017 18.8599 12.3045C18.0768 12.6072 17.4075 13.1199 16.9366 13.7777C16.4656 14.4355 16.2143 15.2089 16.2143 16C16.2143 17.0609 16.6658 18.0783 17.4695 18.8284C18.2733 19.5786 19.3634 20 20.5 20ZM20.5 14C20.9238 14 21.3381 14.1173 21.6905 14.3371C22.0429 14.5568 22.3176 14.8692 22.4797 15.2346C22.6419 15.6001 22.6844 16.0022 22.6017 16.3902C22.519 16.7781 22.3149 17.1345 22.0152 17.4142C21.7155 17.6939 21.3337 17.8844 20.9181 17.9616C20.5024 18.0387 20.0715 17.9991 19.68 17.8478C19.2884 17.6964 18.9537 17.44 18.7183 17.1111C18.4828 16.7822 18.3571 16.3956 18.3571 16C18.3571 15.4696 18.5829 14.9609 18.9848 14.5858C19.3866 14.2107 19.9317 14 20.5 14ZM20.5 21C18.5109 21 16.6032 21.7375 15.1967 23.0503C13.7902 24.363 13 26.1435 13 28C13 28.2652 13.1129 28.5196 13.3138 28.7071C13.5147 28.8946 13.7873 29 14.0714 29C14.3556 29 14.6281 28.8946 14.829 28.7071C15.03 28.5196 15.1429 28.2652 15.1429 28C15.1429 26.6739 15.7073 25.4022 16.7119 24.4645C17.7166 23.5268 19.0792 23 20.5 23C21.9208 23 23.2834 23.5268 24.2881 24.4645C25.2927 25.4022 25.8571 26.6739 25.8571 28C25.8571 28.2652 25.97 28.5196 26.171 28.7071C26.3719 28.8946 26.6444 29 26.9286 29C27.2127 29 27.4853 28.8946 27.6862 28.7071C27.8871 28.5196 28 28.2652 28 28C28 26.1435 27.2098 24.363 25.8033 23.0503C24.3968 21.7375 22.4891 21 20.5 21Z" fill="#E2E5D2"/></svg>
+      </a>
+    </div>
+  </header>
+</div>
+
+<script src="intro.js"></script>
