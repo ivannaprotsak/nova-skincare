@@ -117,6 +117,17 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 .bottle .pip-liq{overflow:visible}   /* collar and bulb sit in front of the neck */
 .bottle .stream{position:absolute;left:191px;top:0;width:60px;height:300px;overflow:visible;pointer-events:none}
 .bottle .splash{position:absolute;left:171px;top:169px;width:100px;height:16px;opacity:0;overflow:visible}
+/* ingredient bubbles: they live inside the bottle frame, so the camera moves them with the scene.
+   Sizes are design px divided by the close-up zoom (2.8), so on screen they match the Figma frame. */
+.ingr{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.ingr svg{position:absolute;left:0;top:0;overflow:visible}
+.ingr line{stroke:var(--olive);stroke-width:.36;fill:none}
+.ing{position:absolute;opacity:0}
+.ing .float{position:absolute;inset:0;animation:bob 2.6s ease-in-out infinite alternate}
+.ing img{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
+.ing span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;
+  font:400 6.43px/1.2 var(--text);letter-spacing:-.01em;color:var(--ink)}
+@keyframes bob{from{transform:translateY(-.8px)}to{transform:translateY(.8px)}}
 /* before the intro runs, everything except the bottle waits off-stage */
 .intro [data-r]:not([data-r=bottle]){opacity:0}
 .intro .word span{transform:translateY(105%)}
@@ -213,6 +224,7 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
         <img class="open" src="assets/img/bottle-open.png" alt="">
         <img class="final" src="assets/img/bottle@3x.png" alt="NOVA organic skincare serum bottle">
         <div class="cap"><img src="assets/img/bottle@3x.png" alt=""></div>
+        <div class="ingr" id="ingr" aria-hidden="true"></div>
         <svg class="splash" id="splash" viewBox="0 0 100 16" aria-hidden="true"><ellipse cx="50" cy="8" rx="44" ry="5.5" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.6"/><ellipse cx="50" cy="9" rx="44" ry="5.5" fill="none" stroke="#4a5240" stroke-opacity=".3" stroke-width=".8"/></svg>
         <svg class="stream" id="stream" viewBox="0 0 60 300" aria-hidden="true">
           <defs>

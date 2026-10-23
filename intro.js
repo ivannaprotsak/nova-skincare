@@ -139,6 +139,37 @@
     Promise.all([].concat(els).map(el => el.animate(frames, { duration: ms, easing, delay, fill: 'forwards' }).finished));
   const camAt = (k, x, y) => `translate(${f(x)}px, ${f(y)}px) scale(${f(k)})`;
 
+  /* ---------- ingredient bubbles (Figma "Design" 173:80): offsets from the pipette's glass ball, design px ---------- */
+  const INGREDIENTS = [
+    { name: 'Glycerin',        dx: -280, dy:   18, d: 167 },
+    { name: 'Distilled water', dx:  205, dy: -174, d: 232 },
+    { name: 'Panthenol',       dx:  307, dy:   99, d: 232 },
+  ];
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function buildIngredients(ball) {
+    const host = $('#ingr'), svg = document.createElementNS(SVGNS, 'svg');
+    host.appendChild(svg);
+    return INGREDIENTS.map(it => {
+      const r = it.d / K0 / 2, cx = ball.x + it.dx / K0, cy = ball.y + it.dy / K0;
+      const el = document.createElement('div');
+      el.className = 'ing';
+      el.style.cssText = `left:${f(cx - r)}px;top:${f(cy - r)}px;width:${f(2 * r)}px;height:${f(2 * r)}px`;
+      el.innerHTML = `<div class="float"><img src="assets/img/bubble.png" alt=""><span>${it.name}</span></div>`;
+      host.appendChild(el);
+      // leader line: from the bubble's edge to the edge of the glass ball
+      const ang = Math.atan2(ball.y - cy, ball.x - cx), br = 20;   // the glass ball's radius
+      const x1 = cx + Math.cos(ang) * r * .69, y1 = cy + Math.sin(ang) * r * .69;   // the bubble disc fills 69% of its image
+      const x2 = ball.x - Math.cos(ang) * br, y2 = ball.y - Math.sin(ang) * br;
+      const line = document.createElementNS(SVGNS, 'line');
+      line.setAttribute('x1', f(x1)); line.setAttribute('y1', f(y1));
+      line.setAttribute('x2', f(x2)); line.setAttribute('y2', f(y2));
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      line.style.strokeDasharray = len; line.style.strokeDashoffset = len;
+      svg.appendChild(line);
+      return { el, line, len, label: el.querySelector('span'), cx, cy };
+    });
+  }
+
   async function intro() {
     setV({ lift: LIFT, tilt: TILT }); placeStream(LIFT); thread(14, 15.5, 30); level(LEVEL0);
     const CAM = cam();
@@ -146,8 +177,36 @@
     await anim(bottle, [{ opacity: 0 }, { opacity: 1 }], T(700), EASE_OUT);
     bottle.style.opacity = 1;
 
+    // the ingredients float in one by one, each with its name, then a thin line reaches for the pipette
+    const ball = { x: 191 + 20 * Math.sin(TILT * Math.PI / 180) + 30, y: streamTop - 6 };
+    const bubbles = buildIngredients(ball);
+    const EASE_POP = 'cubic-bezier(.34,1.45,.64,1)';
+    let last;
+    bubbles.forEach((b, i) => {
+      const t0 = 120 + i * 420;
+      anim(b.el, [{ opacity: 0, transform: 'scale(.55)' }, { opacity: 1, transform: 'scale(1)' }], 620, EASE_POP, t0);
+      last = anim(b.line, [{ strokeDashoffset: b.len }, { strokeDashoffset: 0 }], 520, EASE_IO, t0 + 380);
+    });
+    await last;
+    await wait(650);
+
+    // names and lines fade away together; the lines draw back towards their bubbles
+    await Promise.all(bubbles.flatMap(b => [
+      anim(b.line, [{ strokeDashoffset: 0, opacity: 1 }, { strokeDashoffset: b.len, opacity: 0 }], 420, EASE_IO),
+      anim(b.label, [{ opacity: 1 }, { opacity: 0 }], 380, EASE_OUT),
+    ]));
+
     // the camera starts pulling back straight away, while the drop is still pouring
     const zoom = anim(bottle, [{ transform: camAt(K0, CAM.x, CAM.y) }, { transform: camAt(1, 0, 0) }], 3300, EASE_CAM);
+    // the bubbles drop into the neck together with the oil
+    const MOUTH_X = 221;
+    bubbles.forEach((b, i) => {
+      const tx = MOUTH_X + (i - 1) * 6 - b.cx, ty = MOUTH + 4 - b.cy;
+      anim(b.el, [
+        { opacity: 1, transform: 'translate(0,0) scale(1)' },
+        { opacity: 1, transform: `translate(${f(tx * .55)}px, ${f(ty * .35)}px) scale(.72)`, offset: .55 },
+        { opacity: 0, transform: `translate(${f(tx)}px, ${f(ty)}px) scale(.18)` }], 760, 'cubic-bezier(.5,0,.75,.4)', 180 + i * 110);
+    });
     await pour();
 
     // the pipette goes home and straightens
@@ -179,7 +238,7 @@
 
   if (reduce) {
     root.classList.remove('intro');
-    $$('.bottle .open, .bottle .pip, .bottle .cap, #stream').forEach(el => el.style.opacity = 0);
+    $$('.bottle .open, .bottle .pip, .bottle .cap, #stream, #ingr').forEach(el => el.style.opacity = 0);
     return;
   }
   // decode every image up front so the first frames of the close-up never stall
