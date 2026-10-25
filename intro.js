@@ -101,7 +101,7 @@
     up(R('bottle'), 1300, 46);
     up(R('stone'), 1400, 120, 150);
     anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 900, EASE_OUT, 700);
-    anim(R('fade').concat(R('leaf')), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT, 300);
+    anim(R('fade'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT, 300);
     word('w1', 450); word('w2', 590); word('w3', 730); word('w4', 870);
     up(R('logo').concat(R('nav'), R('icons')), 900, -16, 900);
     up(R('perks'), 900, 30, 1350); up(R('lead'), 900, 30, 1450); up(R('cta'), 900, 30, 1550);
@@ -109,7 +109,8 @@
   }
 
   async function intro() {
-    await anim($('.inci-card'), [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 900, EASE_OUT);
+    anim(R('leaf'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT);
+    await anim($('.inci-card'), [{ opacity: 0, translate: '0 14px' }, { opacity: 1, translate: '0 0' }], 900, EASE_OUT);
     await wait(700);
     await edit();
     // what is left turns NOVA olive
@@ -117,7 +118,7 @@
     relabel('NOVA serum');
     await gather();
     await wait(1100);
-    anim($('.inci-card'), [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-18px)' }], 700, EASE_IO);
+    anim($('.inci-card'), [{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 -18px' }], 700, EASE_IO);
     await wait(380);
     await hero();
     inci.remove();
