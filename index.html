@@ -9,7 +9,7 @@
    the stone grows from under the bottle until it reaches the window's right and bottom edges,
    the leaf shadows and the bottom fade are pinned to the window's corners and edges (--*-edge, in stage px);
    the header lives outside the stage, pinned to the top: logo left, menu centred, icons right.
-   Intro plays on its own: close-up of the pipette dripping → camera pulls back → stone → the rest of the hero. */
+   Intro: the ingredient list of a typical cream is edited down to the three NOVA keeps, then the hero settles in. */
 @font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-Regular.woff") format("woff");font-weight:400;font-display:block}
 @font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-SemiBold.woff") format("woff");font-weight:600;font-display:block}
 
@@ -93,49 +93,35 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 .socials a:hover{color:var(--olive);border-color:var(--olive)}
 
 /* ---------- bottle ---------- */
-/* The intro uses two separate renders (open bottle + pipette); once the pipette is home
-   they cross-fade into the single bottle render from the design. */
-.bottle{position:absolute;left:907.85px;top:309px;width:453px;height:663px;transform-origin:221px 125px;
-  --lift:0;--tilt:0}
+.bottle{position:absolute;left:907.85px;top:309px;width:453px;height:663px}
 .bottle .el6{position:absolute;left:110.66px;top:580px;width:268px;height:103px}
 .bottle .el5{position:absolute;left:109.7px;top:578.1px;width:225px;height:71px}
 /* soft reflection: pre-blurred (27px) at 10% so nothing is filtered at run time */
 .bottle .ghost{position:absolute;left:-9.01px;top:9.54px;width:543px;height:734px}
 .bottle .ghost img{width:100%;height:100%;display:block;max-width:none}
 .bottle .final{position:absolute;left:0;top:0;width:442px;height:663px;display:block;max-width:none}
-/* open-bottle render (1024×1536), fitted onto the design bottle's body */
-.bottle .open{position:absolute;left:34.12px;top:131.65px;width:375.52px;height:531.17px;display:block;max-width:none}
-/* pipette: 1086×1448 render scaled so its collar matches the design collar (156px) */
-.bottle .pip{position:absolute;left:-26.07px;top:4.75px;width:494.13px;height:658.84px;max-width:none;display:block;
-  transform-origin:247.07px 623.8px;           /* the glass tip */
-  transform:translateY(calc(var(--lift) * -1px)) rotate(calc(var(--tilt) * 1deg))}
-/* the cap is cut straight from the design render, so it looks the same zoomed in and screwed shut */
-.bottle .cap{position:absolute;left:0;top:0;width:442px;height:663px;clip-path:inset(0 143px 400px 143px);
-  transform-origin:221px 628.6px;            /* same pivot as the glass tip */
-  transform:translateY(calc(var(--lift) * -1px)) rotate(calc(var(--tilt) * 1deg))}
-.bottle .cap img{width:100%;height:100%;display:block;max-width:none}
-.bottle .pip-liq{overflow:visible}   /* collar and bulb sit in front of the neck */
-.bottle .stream{position:absolute;left:191px;top:0;width:60px;height:300px;overflow:visible;pointer-events:none}
-.bottle .splash{position:absolute;left:171px;top:169px;width:100px;height:16px;opacity:0;overflow:visible}
-/* ingredient bubbles: they live inside the bottle frame, so the camera moves them with the scene.
-   Sizes are design px divided by the close-up zoom (2.8), so on screen they match the Figma frame. */
-.ingr{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.ingr svg{position:absolute;left:0;top:0;overflow:visible}
-.ingr line{stroke:var(--olive);stroke-width:.36;fill:none}
-.ing{position:absolute;opacity:0}
-.ing .float{position:absolute;inset:0;animation:bob 2.6s ease-in-out infinite alternate}
-.ing img{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
-.ing span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;
-  font:400 6.43px/1.2 var(--text);letter-spacing:-.01em;color:var(--ink)}
-@keyframes bob{from{transform:translateY(-.8px)}to{transform:translateY(.8px)}}
-/* before the intro runs, everything except the bottle waits off-stage */
-.intro [data-r]:not([data-r=bottle]){opacity:0}
+
+/* ---------- intro: the back of a typical cream, edited down to what NOVA keeps ----------
+   Lives outside the stage, centred in the window, sized with the stage scale (--s). */
+.inci{position:absolute;inset:0;z-index:6;display:grid;place-items:center;pointer-events:none;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.inci-card{width:min(max(calc(1060px * var(--s,1)), 560px), 100%);font-family:var(--text);color:var(--ink)}
+.inci-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  padding-bottom:calc(14px * var(--s,1));margin-bottom:calc(22px * var(--s,1));border-bottom:1px solid color-mix(in srgb, var(--olive) 35%, transparent);
+  font-size:max(11px, calc(15px * var(--s,1)));letter-spacing:.08em;text-transform:uppercase;color:var(--olive)}
+.inci-count{font-variant-numeric:tabular-nums;white-space:nowrap}
+.inci-count b{font:600 1em/1 var(--text);letter-spacing:0;display:inline-block;min-width:2ch;text-align:right}
+.inci-list{margin:0;font-size:max(13px, calc(25px * var(--s,1)));line-height:1.6;letter-spacing:-.01em;text-wrap:pretty}
+.inci-list .i{display:inline-block;position:relative;white-space:nowrap}
+.inci-list .strike{position:absolute;left:-.1em;right:-.1em;top:58%;height:1px;background:var(--olive);transform:scaleX(0);transform-origin:0 50%}
+.inci-list .i:has(.sep) .strike{right:.25em}
+.inci-list .i.keep{transform-origin:0 50%}
+
+/* before the intro runs, the hero waits off-stage */
+.intro [data-r]{opacity:0}
 .intro .word span{transform:translateY(105%)}
-.intro .bottle{opacity:0}
-/* not 0: a hair of opacity keeps these painted, so they are ready when they fade in mid-zoom */
-.intro .bottle .el5,.intro .bottle .el6,.intro .bottle .ghost,.intro .bottle .final{opacity:.001}
-.intro .stage .stone[data-r]{opacity:.001}
-@media (prefers-reduced-motion:reduce){.sway{animation:none}}
+.intro .bottle .el5,.intro .bottle .el6,.intro .bottle .ghost{opacity:0}
+@media (prefers-reduced-motion:reduce){.sway{animation:none}.inci{display:none}}
 </style>
 
 <script>document.documentElement.classList.add("intro")</script>
@@ -171,85 +157,7 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
         <img class="el5" src="assets/img/shadow-contact.png" alt="">
         <div class="ghost"><img src="assets/img/bottle-ghost.png" alt=""></div>
 
-        <img class="pip pip--back" src="assets/img/pipette-tube.png" alt="">
-        <svg class="pip pip-liq" viewBox="0 0 1086 1448" aria-hidden="true">
-          <defs>
-            <clipPath id="liqClip"><rect id="liqClipRect" x="480" y="1120" width="130" height="400"/></clipPath>
-            <clipPath id="tubeInner"><path d="M503 0V1236C503 1258 520 1268 521 1292A36 38 0 1 0 561 1292C562 1268 581 1258 581 1236V0Z"/></clipPath>
-            <linearGradient id="liqFill" x1="503" x2="581" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#56653f" stop-opacity=".26"/><stop offset=".18" stop-color="#fff" stop-opacity=".22"/>
-              <stop offset=".5" stop-color="#f6efc9" stop-opacity=".16"/><stop offset=".85" stop-color="#8a8f62" stop-opacity=".12"/><stop offset="1" stop-color="#56653f" stop-opacity=".28"/></linearGradient>
-          </defs>
-          <g clip-path="url(#tubeInner)">
-            <rect id="liqBody" x="490" y="1120" width="110" height="330" fill="url(#liqFill)"/>
-            <path id="liqTop" d="M503 1120Q542 1136 581 1120" fill="none" stroke="#4f5d3a" stroke-opacity=".42" stroke-width="3.5"/>
-            <path id="liqTopHi" d="M503 1126Q542 1142 581 1126" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="3"/>
-            <!-- air bubbles suspended in the oil -->
-            <g clip-path="url(#liqClip)">
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -7.2;0 0" dur="2.60s" repeatCount="indefinite"/>
-                <circle cx="520" cy="1140" r="8.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="517.1" cy="1136.9" r="2.2" fill="#fff" fill-opacity=".95"/>
-                <path d="M515.3 1143.6Q520 1146.8 524.7 1143.6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -5.5;0 0" dur="3.00s" repeatCount="indefinite"/>
-                <circle cx="559" cy="1170" r="5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="557.3" cy="1168.2" r="1.3" fill="#fff" fill-opacity=".95"/>
-                <path d="M556.2 1172.1Q559 1174.0 561.8 1172.1" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -8.5;0 0" dur="3.40s" repeatCount="indefinite"/>
-                <circle cx="537" cy="1206" r="11" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="533.3" cy="1202.0" r="2.9" fill="#fff" fill-opacity=".95"/>
-                <path d="M531.0 1210.6Q537 1214.8 543.0 1210.6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -6.2;0 0" dur="3.80s" repeatCount="indefinite"/>
-                <circle cx="567" cy="1240" r="6.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="564.8" cy="1237.7" r="1.7" fill="#fff" fill-opacity=".95"/>
-                <path d="M563.4 1242.7Q567 1245.2 570.6 1242.7" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -5.8;0 0" dur="2.60s" repeatCount="indefinite"/>
-                <circle cx="516" cy="1262" r="5.5" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="514.1" cy="1260.0" r="1.4" fill="#fff" fill-opacity=".95"/>
-                <path d="M513.0 1264.3Q516 1266.4 519.0 1264.3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -7.0;0 0" dur="3.00s" repeatCount="indefinite"/>
-                <circle cx="548" cy="1284" r="8" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="545.3" cy="1281.1" r="2.1" fill="#fff" fill-opacity=".95"/>
-                <path d="M543.6 1287.4Q548 1290.4 552.4 1287.4" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;1.5 -6.0;0 0" dur="3.40s" repeatCount="indefinite"/>
-                <circle cx="530" cy="1312" r="6" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="528.0" cy="1309.8" r="1.6" fill="#fff" fill-opacity=".95"/>
-                <path d="M526.7 1314.5Q530 1316.8 533.3 1314.5" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-              <g><animateTransform attributeName="transform" type="translate" values="0 0;-1.5 -7.5;0 0" dur="3.80s" repeatCount="indefinite"/>
-                <circle cx="553" cy="1334" r="9" fill="#fffdf1" fill-opacity=".16" stroke="#5d6b45" stroke-opacity=".34" stroke-width="1.3"/>
-                <circle cx="549.9" cy="1330.8" r="2.3" fill="#fff" fill-opacity=".95"/>
-                <path d="M548.0 1337.8Q553 1341.2 558.0 1337.8" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></g>
-            </g>
-          </g>
-        </svg>
-        <img class="open" src="assets/img/bottle-open.png" alt="">
         <img class="final" src="assets/img/bottle@3x.png" alt="NOVA organic skincare serum bottle">
-        <div class="cap"><img src="assets/img/bottle@3x.png" alt=""></div>
-        <div class="ingr" id="ingr" aria-hidden="true"></div>
-        <svg class="splash" id="splash" viewBox="0 0 100 16" aria-hidden="true"><ellipse cx="50" cy="8" rx="44" ry="5.5" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.6"/><ellipse cx="50" cy="9" rx="44" ry="5.5" fill="none" stroke="#4a5240" stroke-opacity=".3" stroke-width=".8"/></svg>
-        <svg class="stream" id="stream" viewBox="0 0 60 300" aria-hidden="true">
-          <defs>
-            <linearGradient id="threadFill" x1="0" x2="1">
-              <stop offset="0" stop-color="#56653f" stop-opacity=".6"/><stop offset=".12" stop-color="#6d7463" stop-opacity=".28"/>
-              <stop offset=".3" stop-color="#fffbea" stop-opacity=".3"/><stop offset=".5" stop-color="#f3ebc4" stop-opacity=".12"/>
-              <stop offset=".82" stop-color="#8d9483" stop-opacity=".16"/><stop offset="1" stop-color="#56653f" stop-opacity=".62"/></linearGradient>
-            <radialGradient id="dropFill" cx=".45" cy=".42" r=".62">
-              <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".02"/>
-              <stop offset=".72" stop-color="#f3ebc4" stop-opacity=".16"/><stop offset=".88" stop-color="#6d7463" stop-opacity=".38"/><stop offset="1" stop-color="#56653f" stop-opacity=".62"/></radialGradient>
-            <clipPath id="rim"><rect id="rimRect" x="-40" y="-20" width="140" height="200"/></clipPath>
-          </defs>
-          <g clip-path="url(#rim)">
-            <g id="hang">
-              <path id="threadPath" fill="url(#threadFill)"/>
-              <path id="bulbShade" fill="url(#dropFill)"/>
-              <path id="threadEdge" fill="none" stroke="#56653f" stroke-opacity=".4" stroke-width="1"/>
-              <ellipse id="hangHi" fill="#fff" fill-opacity=".9"/>
-              <path id="hangRef" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.6" stroke-linecap="round"/>
-            </g>
-            <g id="fall" opacity="0">
-              <path id="fallPath" fill="url(#threadFill)" stroke="#56653f" stroke-opacity=".4" stroke-width="1"/>
-            </g>
-          </g>
-        </svg>
       </div>
 
 
@@ -257,6 +165,12 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 
       <ul class="perks" data-r="perks"><li>Simple formulas</li><li>Thoughtful care</li><li>Sensitive skin</li></ul>
     </div>
+  <div class="inci" id="inci" aria-hidden="true">
+    <div class="inci-card">
+      <div class="inci-head"><span>A typical face cream</span><span class="inci-count"><b id="inciN">38</b> ingredients</span></div>
+      <p class="inci-list" id="inciList"><span class="i keep">Aqua</span>, <span class="i">Caprylic/Capric Triglyceride</span>, <span class="i">Cetearyl Alcohol</span>, <span class="i">Butylene Glycol</span>, <span class="i">Dimethicone</span>, <span class="i">Glyceryl Stearate</span>, <span class="i">PEG-100 Stearate</span>, <span class="i keep">Glycerin</span>, <span class="i">Isopropyl Myristate</span>, <span class="i">Cetyl Alcohol</span>, <span class="i">Stearic Acid</span>, <span class="i">Paraffinum Liquidum</span>, <span class="i">Petrolatum</span>, <span class="i">Cyclopentasiloxane</span>, <span class="i">Carbomer</span>, <span class="i">Triethanolamine</span>, <span class="i keep">Panthenol</span>, <span class="i">Sodium Hydroxide</span>, <span class="i">Xanthan Gum</span>, <span class="i">Polysorbate 20</span>, <span class="i">Sorbitan Stearate</span>, <span class="i">Tocopheryl Acetate</span>, <span class="i">Disodium EDTA</span>, <span class="i">Phenoxyethanol</span>, <span class="i">Methylparaben</span>, <span class="i">Propylparaben</span>, <span class="i">Ethylhexylglycerin</span>, <span class="i">Benzyl Alcohol</span>, <span class="i">Parfum</span>, <span class="i">Limonene</span>, <span class="i">Linalool</span>, <span class="i">Citronellol</span>, <span class="i">Geraniol</span>, <span class="i">Hexyl Cinnamal</span>, <span class="i">Benzyl Salicylate</span>, <span class="i">Alpha-Isomethyl Ionone</span>, <span class="i">Coumarin</span>, <span class="i">CI 77891</span>.</p>
+    </div>
+  </div>
   <header class="hdr">
     <p class="logo" data-r="logo">NOVA</p>
     <nav class="nav" data-r="nav" aria-label="Main">
