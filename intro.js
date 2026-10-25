@@ -16,8 +16,8 @@
     const w = viewport.clientWidth, h = viewport.clientHeight;
     // The content sits 30px lower than the original frame (Figma, 25 Oct): the stage overhangs the bottom edge by 30.
     // Header → headline: header bottom at 127, headline caps at 268 (stage px); the gap on screen is
-    // h - (1050 - 268 + 127)·s, kept at 200px or more by lowering the scale on short windows.
-    const SHIFT = 30, HEAD = 127, CAPS = 268, MIN_GAP = 200;
+    // h - (1050 - 268 + 127)·s, kept at 150px or more by lowering the scale on short windows.
+    const SHIFT = 30, HEAD = 127, CAPS = 268, MIN_GAP = 150;
     const s = Math.min(w / 1920, (h - MIN_GAP) / (1080 - SHIFT - CAPS + HEAD));
     const x = (w - 1920 * s) / 2, y = h - (1080 - SHIFT) * s;   // centred across, standing on the bottom edge
     view = { s, x, y, w, h };
