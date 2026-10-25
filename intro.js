@@ -14,8 +14,12 @@
   const FOOT = { x: 1128.85, y: 940 };     // where the bottle stands on the stone (stage px)
   function fit() {
     const w = viewport.clientWidth, h = viewport.clientHeight;
-    const s = Math.min(w / 1920, h / 945);                // never let the headline run into the header
-    const x = (w - 1920 * s) / 2, y = h - 1080 * s;      // centred across, standing on the bottom edge
+    // The content sits 30px lower than the original frame (Figma, 25 Oct): the stage overhangs the bottom edge by 30.
+    // Header → headline: header bottom at 127, headline caps at 268 (stage px); the gap on screen is
+    // h - (1050 - 268 + 127)·s, kept at 200px or more by lowering the scale on short windows.
+    const SHIFT = 30, HEAD = 127, CAPS = 268, MIN_GAP = 200;
+    const s = Math.min(w / 1920, (h - MIN_GAP) / (1080 - SHIFT - CAPS + HEAD));
+    const x = (w - 1920 * s) / 2, y = h - (1080 - SHIFT) * s;   // centred across, standing on the bottom edge
     view = { s, x, y, w, h };
     const L = -x / s, T = -y / s, Rt = (w - x) / s, B = (h - y) / s;     // window edges in stage px
     const k = Math.max(1, (Rt - FOOT.x) / (1920 - FOOT.x));   // grow until the stone meets the right edge

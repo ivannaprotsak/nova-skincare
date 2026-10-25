@@ -105,7 +105,7 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
    Figma "Intro" (222:2): the card sits on the stage grid at 372,373 and is 1169 wide, so it shares
    its left edge with the hero copy. It is laid over the stage with the same scale (--s) and offset. */
 .inci{position:absolute;inset:0;z-index:6;pointer-events:none}
-.inci-card{position:absolute;left:calc(var(--stage-x,0px) + 372px * var(--s,1));top:calc(var(--stage-y,0px) + 373px * var(--s,1));
+.inci-card{position:absolute;left:calc(var(--stage-x,0px) + 372px * var(--s,1));top:calc(var(--stage-y,0px) + 343px * var(--s,1)); /* 373 in the Intro frame, minus the 30px content shift */
   width:calc(1169px * var(--s,1));font-family:var(--text);color:var(--ink)}
 .inci-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;white-space:nowrap;
   padding-bottom:calc(14px * var(--s,1));margin-bottom:calc(22px * var(--s,1));border-bottom:1px solid rgba(98,109,58,.35)}
