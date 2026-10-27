@@ -6,20 +6,19 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- the 1920×1080 frame, scaled to the window ----------
-     The stage is centred across the window and stands on its bottom edge. Width decides the scale,
-     unless the window is so short that the headline would run into the header. On wide windows the stone
-     scales up around the spot where the bottle stands, just enough to reach the right edge;
-     the full-bleed layers read the window edges in stage px. */
+     Figma "Design" (58:170), 27 Oct: the content runs from x 50 to x 1870, so the side margins are 50px.
+     Width decides the scale so those margins stay exactly 50px on screen; the logo lines up with the headline,
+     the header tools with the headline's right edge and the socials. On short windows the scale drops so the
+     headline keeps at least 150px below the header (header bottom 100, headline caps 258, stage px); the
+     content then stays centred and the header follows its edges. */
   let view = { s: 1, x: 0, y: 0, w: 1920, h: 1080 };
-  const FOOT = { x: 1128.85, y: 940 };     // where the bottle stands on the stone (stage px)
+  const FOOT = { x: 1146.26, y: 991 };     // where the bottle stands on the stone (stage px)
+  const MARGIN = 50, CONTENT = 1820, HEAD = 100, CAPS = 258, MIN_GAP = 150;
   function fit() {
     const w = viewport.clientWidth, h = viewport.clientHeight;
-    // The content sits 30px lower than the original frame (Figma, 25 Oct): the stage overhangs the bottom edge by 30.
-    // Header → headline: header bottom at 127, headline caps at 268 (stage px); the gap on screen is
-    // h - (1050 - 268 + 127)·s, kept at 150px or more by lowering the scale on short windows.
-    const SHIFT = 30, HEAD = 127, CAPS = 268, MIN_GAP = 150;
-    const s = Math.min(w / 1920, (h - MIN_GAP) / (1080 - SHIFT - CAPS + HEAD));
-    const x = (w - 1920 * s) / 2, y = h - (1080 - SHIFT) * s;   // centred across, standing on the bottom edge
+    const s = Math.max(.1, Math.min((w - 2 * MARGIN) / CONTENT, (h - MIN_GAP) / (1080 - CAPS + HEAD)));
+    const left = (w - CONTENT * s) / 2;                  // screen x of the content's left edge (50px when width decides)
+    const x = left - MARGIN * s, y = h - 1080 * s;       // stage stands on the bottom edge
     view = { s, x, y, w, h };
     const L = -x / s, T = -y / s, Rt = (w - x) / s, B = (h - y) / s;     // window edges in stage px
     const k = Math.max(1, (Rt - FOOT.x) / (1920 - FOOT.x));   // grow until the stone meets the right edge
