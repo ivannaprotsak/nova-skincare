@@ -127,7 +127,10 @@
     const K = 1.6;                                               // the three names grow as they gather
     const widths = rects.map((r, i) => (r.width - sepW[i]) * K);
     const total = widths.reduce((a, b) => a + b, 0) + gap * (keep.length - 1);
-    let x = box.left + (box.width - total) / 2;
+    // centre the line between the card's left edge and the bottle's silhouette, so the bottle never covers it
+    const hit = $('#bottleHit').getBoundingClientRect();
+    const right = Math.min(box.right, hit.left - 40);
+    let x = box.left + Math.max(0, (right - box.left - total) / 2);
     const y = box.top + box.height / 2;
     anim(seps, [{ opacity: 1 }, { opacity: 0 }], 300, 'ease-out');
     await Promise.all(keep.map((el, i) => {
@@ -166,16 +169,16 @@
   async function toBottle() {
     await bottleReady;
     // the card's header and rule leave; the bottle appears with its back to us
-    anim($('.inci-head'), [{ opacity: 1 }, { opacity: 0 }], 500, EASE_IO);
+    anim($('.inci-head'), [{ opacity: 1 }, { opacity: 0 }], 350, EASE_IO);
     if (B) { turn.rot = Math.PI; show3d(); }
-    await anim(R('bottle'), [{ opacity: 0, translate: `0 ${LIFT - 26}px`, scale: .97 }, { opacity: 1, translate: `0 ${LIFT}px`, scale: 1 }], 900, EASE_OUT);
+    await anim(R('bottle'), [{ opacity: 0, translate: `0 ${LIFT - 26}px`, scale: .97 }, { opacity: 1, translate: `0 ${LIFT}px`, scale: 1 }], 600, EASE_OUT);
 
     // each name flies to its line on the back and is printed there. The flight uses a fixed-position copy of
     // the word, so the card's own transforms don't get in the way.
     const progress = [0, 0, 0];
     const ink = getComputedStyle(keep[0]).color, family = getComputedStyle(keep[0]).fontFamily;
     await Promise.all(keep.map((el, i) => new Promise(async res => {
-      await wait(i * 260);
+      await wait(i * 110);
       const r = el.getBoundingClientRect();
       const fly = document.createElement('span');
       fly.textContent = el.firstChild.textContent.trim();
@@ -189,21 +192,21 @@
       const tx = box.left + row.x * box.width, ty = box.top + row.y * box.height;
       const k = (box.height * row.h) / (r.height / 1.25);              // printed size ÷ flying size
       const dx = tx - (r.left + r.width / 2), dy = ty - (r.top + r.height / 2);
-      await anim(fly, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 900, 'cubic-bezier(.55,0,.25,1)');
-      const fade = anim(fly, [{ opacity: 1 }, { opacity: 0 }], 300, 'ease-out');
-      if (B) await tween(320, t => { progress[i] = t; B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], progress); draw3d(); });
+      await anim(fly, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 560, 'cubic-bezier(.55,0,.25,1)');
+      const fade = anim(fly, [{ opacity: 1 }, { opacity: 0 }], 200, 'ease-out');
+      if (B) await tween(200, t => { progress[i] = t; B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], progress); draw3d(); });
       await fade; fly.remove();
       res();
     })));
     inci.style.visibility = 'hidden';
-    await wait(250);
+    await wait(80);
 
     // the bottle turns to face us and settles onto the stone as it rises into place
-    anim(R('stone'), [{ opacity: 0, translate: '0 140px' }, { opacity: 1, translate: '0 0' }], 1700, EASE_OUT, 200);
-    anim(R('bottle'), [{ translate: `0 ${LIFT}px` }, { translate: '0 0' }], 1900, EASE_IO, 150);
-    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 900, EASE_OUT, 1200);
-    if (B) await tween(2100, t => { turn.rot = Math.PI + Math.PI * t; draw3d(); }, inOut);
-    else await wait(1900);
+    anim(R('stone'), [{ opacity: 0, translate: '0 140px' }, { opacity: 1, translate: '0 0' }], 1200, EASE_OUT, 100);
+    anim(R('bottle'), [{ translate: `0 ${LIFT}px` }, { translate: '0 0' }], 1300, EASE_IO, 80);
+    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 700, EASE_OUT, 800);
+    if (B) await tween(1300, t => { turn.rot = Math.PI + Math.PI * t; draw3d(); }, inOut);
+    else await wait(1300);
     turn.rot = 0; draw3d();
   }
 
@@ -216,7 +219,7 @@
     await anim(keep, [{ color: getComputedStyle(list).color }, { color: getComputedStyle(document.body).getPropertyValue('--olive') || '#626d3a' }], 450, 'ease-out');
     relabel('NOVA serum');
     await gather();
-    await wait(700);
+    await wait(350);
     await toBottle();
     await hero();
     inci.remove();
