@@ -6,7 +6,7 @@ try {
   const canvas = document.getElementById('b3d');
   if (!canvas || !('WebGL2RenderingContext' in window || 'WebGLRenderingContext' in window)) throw new Error('no WebGL');
   if (document.fonts) await Promise.all([document.fonts.load('400 92px Inter'), document.fonts.load('500 30px Inter')]).catch(() => {});
-  const labelUrl = new URL('assets/img/label-front.png', document.baseURI).href;
+  const labelUrl = new URL('assets/img/label-front.webp', document.baseURI).href;
   done(await createBottle(canvas, { labelUrl }));
 } catch (e) {
   console.warn('NOVA: 3D bottle unavailable, keeping the flat render.', e);

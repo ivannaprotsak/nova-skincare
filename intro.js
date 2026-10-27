@@ -51,7 +51,8 @@
     };
     setTimeout(() => res(null), 6000);            // not loaded yet: the intro carries on with the flat render
   }).then(adopt);
-  function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(2, window.devicePixelRatio || 1)); draw3d(); } }
+  // no drawing until the bottle is on screen: the first draw compiles the shaders, which would stutter the list animation
+  function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(2, window.devicePixelRatio || 1)); if (bottleBox.classList.contains('is-3d')) draw3d(); } }
   function draw3d() { if (!B) return; B.bottle.rotation.y = turn.rot; B.render(); }
   function show3d() { if (B && !bottleBox.classList.contains('is-3d')) { draw3d(); bottleBox.classList.add('is-3d'); } }
   // eased spin towards turn.target; renders only while it moves
@@ -105,14 +106,14 @@
   const order = cut.map(el => [rnd(), el]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
 
   async function edit() {
-    const n0 = items.length, SPAN = 2300;
+    const n0 = items.length, SPAN = 1500;
     let left = n0;
     await Promise.all(order.map((el, k) => {
       const delay = SPAN * Math.pow(k / order.length, 0.85);      // starts deliberate, speeds up
       const strike = el.querySelector('.strike');
-      const a = anim(strike, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], 240, EASE_OUT, delay);
-      const b = anim(el, [{ opacity: 1 }, { opacity: 0 }], 320, 'ease-out', delay + 200);
-      setTimeout(() => { count.textContent = --left; }, delay + 260);
+      const a = anim(strike, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], 180, EASE_OUT, delay);
+      const b = anim(el, [{ opacity: 1 }, { opacity: 0 }], 240, 'ease-out', delay + 150);
+      setTimeout(() => { count.textContent = --left; }, delay + 190);
       return Promise.all([a, b]);
     }));
   }
@@ -132,18 +133,18 @@
     const right = Math.min(box.right, hit.left - 40);
     let x = box.left + Math.max(0, (right - box.left - total) / 2);
     const y = box.top + box.height / 2;
-    anim(seps, [{ opacity: 1 }, { opacity: 0 }], 300, 'ease-out');
+    anim(seps, [{ opacity: 1 }, { opacity: 0 }], 220, 'ease-out');
     await Promise.all(keep.map((el, i) => {
       const r = rects[i], dx = x - r.left, dy = y - (r.top + r.height / 2);
       x += widths[i] + gap;
-      return anim(el, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${K})` }], 1100, EASE_IO, i * 70);
+      return anim(el, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${K})` }], 750, EASE_IO, i * 50);
     }));
   }
 
   async function relabel(text) {
-    await anim(label, [{ opacity: 1 }, { opacity: 0 }], 260, 'ease-in');
+    await anim(label, [{ opacity: 1 }, { opacity: 0 }], 180, 'ease-in');
     label.textContent = text;
-    await anim(label, [{ opacity: 0 }, { opacity: 1 }], 360, 'ease-out');
+    await anim(label, [{ opacity: 0 }, { opacity: 1 }], 260, 'ease-out');
   }
 
   /* ---------- the hero ---------- */
@@ -211,15 +212,15 @@
   }
 
   async function intro() {
-    anim(R('leaf'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT);
-    await anim($('.inci-card'), [{ opacity: 0, translate: '0 14px' }, { opacity: 1, translate: '0 0' }], 900, EASE_OUT);
-    await wait(700);
+    anim(R('leaf'), [{ opacity: 0 }, { opacity: 1 }], 1200, EASE_OUT);
+    await anim($('.inci-card'), [{ opacity: 0, translate: '0 14px' }, { opacity: 1, translate: '0 0' }], 600, EASE_OUT);
+    await wait(350);
     await edit();
     // what is left turns NOVA olive
-    await anim(keep, [{ color: getComputedStyle(list).color }, { color: getComputedStyle(document.body).getPropertyValue('--olive') || '#626d3a' }], 450, 'ease-out');
+    await anim(keep, [{ color: getComputedStyle(list).color }, { color: getComputedStyle(document.body).getPropertyValue('--olive') || '#626d3a' }], 300, 'ease-out');
     relabel('NOVA serum');
     await gather();
-    await wait(350);
+    await wait(200);
     await toBottle();
     await hero();
     inci.remove();
@@ -229,6 +230,7 @@
   }
 
   if (reduce) { inci.remove(); root.classList.remove('intro'); bottleReady.then(b => { if (b) { show3d(); enableHover(); } }); return; }
-  const decoded = $$('.stage img').map(img => (img.decode ? img.decode() : Promise.resolve()).catch(() => {}));
-  Promise.all([document.fonts ? document.fonts.ready : null, ...decoded]).then(intro);
+  // the intro starts with text only: wait for the fonts (max 1.5 s), not for the hero images, which decode meanwhile
+  $$('.stage img').forEach(img => img.decode && img.decode().catch(() => {}));
+  Promise.race([document.fonts ? document.fonts.ready : null, wait(1500)]).then(intro);
 })();

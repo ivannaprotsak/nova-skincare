@@ -1,6 +1,11 @@
 <meta charset="utf-8">
 <title>NOVA Hero</title>
 <meta name="description" content="NOVA — organic skincare with 3–5 essential ingredients, created for sensitive skin.">
+<link rel="preload" href="assets/fonts/HeuvelGrotesk-Regular.woff" as="font" type="font/woff" crossorigin>
+<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
+<link rel="modulepreload" href="assets/vendor/three.module.min.js">
+<link rel="modulepreload" href="assets/js/bottle3d.js">
+<link rel="modulepreload" href="assets/js/bottle-boot.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
@@ -11,8 +16,8 @@
    the leaf shadows and the bottom fade are pinned to the window's corners and edges (--*-edge, in stage px);
    the header lives outside the stage, pinned to the top: logo left, menu centred, icons right.
    Intro: the ingredient list of a typical cream is edited down to the three NOVA keeps, then the hero settles in. */
-@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-Regular.woff") format("woff");font-weight:400;font-display:block}
-@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-SemiBold.woff") format("woff");font-weight:600;font-display:block}
+@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-Regular.woff") format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"Heuvel Grotesk";src:url("assets/fonts/HeuvelGrotesk-SemiBold.woff") format("woff");font-weight:600;font-display:swap}
 
 :root{
   --olive:#626d3a;        /* headlines, logo, buttons */
@@ -153,10 +158,10 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 <div class="viewport" id="viewport">
     <div class="stage" id="stage">
 
-      <div class="stone" data-r="stone"><img src="assets/img/stone-baked.png" alt=""></div>
-      <div class="fade" data-r="fade"><img src="assets/img/bottom-fade.png" alt=""></div>
-      <div class="leaf leaf--1" data-r="leaf"><div class="sway"><img src="assets/img/leaf-1-green.png" width="730" height="706" alt=""></div></div>
-      <div class="leaf leaf--2" data-r="leaf"><div class="sway"><img src="assets/img/leaf-2-baked.png" width="541" height="472" alt=""></div></div>
+      <div class="stone" data-r="stone"><img src="assets/img/stone.webp" alt=""></div>
+      <div class="fade" data-r="fade"><img src="assets/img/bottom-fade.webp" alt=""></div>
+      <div class="leaf leaf--1" data-r="leaf"><div class="sway"><img src="assets/img/leaf-1.webp" width="730" height="706" alt=""></div></div>
+      <div class="leaf leaf--2" data-r="leaf"><div class="sway"><img src="assets/img/leaf-2.webp" width="541" height="472" alt=""></div></div>
 
       <h1 class="word w-less" data-r="w1"><span>Less</span></h1>
       <p class="word w-ingredients" data-r="w2" aria-hidden="true"><span>Ingredients</span></p>
@@ -178,11 +183,11 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 
 
       <div class="bottle" id="bottle" data-r="bottle">
-        <img class="el6" src="assets/img/shadow-soft.png" alt="">
-        <img class="el5" src="assets/img/shadow-contact.png" alt="">
-        <div class="ghost"><img src="assets/img/bottle-ghost.png" alt=""></div>
+        <img class="el6" src="assets/img/shadow-soft.webp" alt="">
+        <img class="el5" src="assets/img/shadow-contact.webp" alt="">
+        <div class="ghost"><img src="assets/img/bottle-ghost.webp" alt=""></div>
 
-        <img class="final" src="assets/img/bottle@3x.png" alt="NOVA organic skincare serum bottle">
+        <img class="final" src="assets/img/bottle.webp" alt="NOVA organic skincare serum bottle">
         <canvas class="b3d" id="b3d" aria-hidden="true"></canvas>
         <div class="bottle-hit" id="bottleHit" title="Turn the bottle"></div>
       </div>
@@ -215,5 +220,4 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 </div>
 
 <script src="intro.js"></script>
-<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 <script type="module" src="assets/js/bottle-boot.js"></script>
