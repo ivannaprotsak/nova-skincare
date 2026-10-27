@@ -40,11 +40,17 @@
   const bottleBox = $('#bottle'), canvas3d = $('#b3d');
   let B = null;
   const turn = { rot: 0, target: 0, raf: 0, last: 0 };
+  let introOver = false;
+  const adopt = api => { B = api; if (B) { size3d(); B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], introOver ? [1, 1, 1] : [0, 0, 0]); } return B; };
   const bottleReady = new Promise(res => {
     if ('__novaBottleEarly' in window) return res(window.__novaBottleEarly);
-    window.__novaBottle = res;
-    setTimeout(() => res(null), 4000);            // module failed to load: carry on with the flat render
-  }).then(api => { B = api; if (B) { size3d(); B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], [0, 0, 0]); } return B; });
+    window.__novaBottle = api => {
+      res(api);
+      // arrived after the intro gave up waiting (slow connection): switch to 3D quietly
+      if (introOver && api && !B) { adopt(api); turn.rot = 0; show3d(); enableHover(); }
+    };
+    setTimeout(() => res(null), 6000);            // not loaded yet: the intro carries on with the flat render
+  }).then(adopt);
   function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(2, window.devicePixelRatio || 1)); draw3d(); } }
   function draw3d() { if (!B) return; B.bottle.rotation.y = turn.rot; B.render(); }
   function show3d() { if (B && !bottleBox.classList.contains('is-3d')) { draw3d(); bottleBox.classList.add('is-3d'); } }
@@ -215,6 +221,7 @@
     await hero();
     inci.remove();
     root.classList.remove('intro');
+    introOver = true;
     if (B) enableHover();
   }
 
