@@ -1,8 +1,9 @@
+<meta charset="utf-8">
 <title>NOVA Hero</title>
 <meta name="description" content="NOVA — organic skincare with 3–5 essential ingredients, created for sensitive skin.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <style>
 /* Layout: the 1920×1080 Figma frame is rebuilt 1:1 in px and scaled as one stage (--s).
    The stage stays centred in the window, so the headline and copy keep their composition;
@@ -111,6 +112,12 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 .bottle .ghost{position:absolute;left:-9.97px;top:10.6px;width:601.1px;height:812.5px}
 .bottle .ghost img{width:100%;height:100%;display:block;max-width:none}
 .bottle .final{position:absolute;left:0;top:0;width:489.33px;height:734px;display:block;max-width:none}
+/* the 3D bottle: same box and framing as the flat render; it takes over once its first frame is drawn */
+.bottle .b3d{position:absolute;left:0;top:0;width:489.33px;height:734px;display:block;opacity:0}
+.bottle.is-3d .b3d{opacity:1}.bottle.is-3d .final{opacity:0}
+/* hover area: the bottle's silhouette (x 317…1010, y 105…1912 of the 1326×1989 render) */
+.bottle .bottle-hit{position:absolute;left:117px;top:38.7px;width:255.7px;height:666.8px;cursor:grab}
+.intro .bottle .bottle-hit{pointer-events:none}
 
 /* ---------- intro: the back of a typical cream, edited down to what NOVA keeps ----------
    Figma "Intro" (222:2): the card sits on the stage grid at 372,373 and is 1169 wide, so it shares
@@ -176,6 +183,8 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
         <div class="ghost"><img src="assets/img/bottle-ghost.png" alt=""></div>
 
         <img class="final" src="assets/img/bottle@3x.png" alt="NOVA organic skincare serum bottle">
+        <canvas class="b3d" id="b3d" aria-hidden="true"></canvas>
+        <div class="bottle-hit" id="bottleHit" title="Turn the bottle"></div>
       </div>
 
 
@@ -206,3 +215,5 @@ a:focus-visible{outline:2px solid var(--olive);outline-offset:4px;border-radius:
 </div>
 
 <script src="intro.js"></script>
+<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
+<script type="module" src="assets/js/bottle-boot.js"></script>

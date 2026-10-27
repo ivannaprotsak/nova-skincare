@@ -32,8 +32,48 @@
     v.setProperty('--bottom-edge', Math.max(1080, B) + 'px');
     v.setProperty('--stone-k', k);
   }
-  addEventListener('resize', fit);
+  addEventListener('resize', () => { fit(); size3d(); });
   fit();
+
+  /* ---------- the 3D bottle (assets/js/bottle3d.js) ----------
+     Arrives through window.__novaBottle; null means no WebGL, and the flat render simply stays. */
+  const bottleBox = $('#bottle'), canvas3d = $('#b3d');
+  let B = null;
+  const turn = { rot: 0, target: 0, raf: 0, last: 0 };
+  const bottleReady = new Promise(res => {
+    if ('__novaBottleEarly' in window) return res(window.__novaBottleEarly);
+    window.__novaBottle = res;
+    setTimeout(() => res(null), 4000);            // module failed to load: carry on with the flat render
+  }).then(api => { B = api; if (B) { size3d(); B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], [0, 0, 0]); } return B; });
+  function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(2, window.devicePixelRatio || 1)); draw3d(); } }
+  function draw3d() { if (!B) return; B.bottle.rotation.y = turn.rot; B.render(); }
+  function show3d() { if (B && !bottleBox.classList.contains('is-3d')) { draw3d(); bottleBox.classList.add('is-3d'); } }
+  // eased spin towards turn.target; renders only while it moves
+  function spinTo(target) {
+    turn.target = target;
+    if (turn.raf) return;
+    turn.last = performance.now();
+    const step = now => {
+      const dt = Math.min(.05, (now - turn.last) / 1000); turn.last = now;
+      turn.rot += (turn.target - turn.rot) * (1 - Math.exp(-dt * 5.5));
+      if (Math.abs(turn.target - turn.rot) < .0008) turn.rot = turn.target;
+      draw3d();
+      turn.raf = turn.rot === turn.target ? 0 : requestAnimationFrame(step);
+    };
+    turn.raf = requestAnimationFrame(step);
+  }
+  function enableHover() {
+    const hit = $('#bottleHit');
+    let tilt = 0;
+    const toBack = () => spinTo(Math.PI + tilt), toFront = () => { tilt = 0; spinTo(0); };
+    hit.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') toBack(); });
+    hit.addEventListener('pointermove', e => {           // a little follow of the cursor while the back is shown
+      if (e.pointerType !== 'mouse') return;
+      const r = hit.getBoundingClientRect(); tilt = ((e.clientX - r.left) / r.width - .5) * .5; toBack();
+    });
+    hit.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') toFront(); });
+    hit.addEventListener('click', e => { if (e.pointerType !== 'mouse') (turn.target > 1 ? toFront() : toBack()); });   // touch: tap to turn
+  }
 
   /* ---------- helpers: every move is a Web Animation, so the browser runs it on the compositor ---------- */
   const EASE_OUT = 'cubic-bezier(.22,1,.36,1)';
@@ -101,14 +141,64 @@
   async function hero() {
     const up = (els, ms, dy = 36, delay = 0) => anim(els, [{ opacity: 0, translate: `0 ${dy}px` }, { opacity: 1, translate: '0 0' }], ms, EASE_OUT, delay);
     const word = (k, delay) => { $(`[data-r=${k}]`).style.opacity = 1; return anim($(`[data-r=${k}] span`), [{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }], 1000, EASE_OUT, delay); };
-    up(R('bottle'), 1300, 46);
-    up(R('stone'), 1400, 120, 150);
-    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 900, EASE_OUT, 700);
-    anim(R('fade'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT, 300);
-    word('w1', 450); word('w2', 590); word('w3', 730); word('w4', 870);
-    up(R('logo').concat(R('nav'), R('icons')), 900, -16, 900);
-    up(R('perks'), 900, 30, 1350); up(R('lead'), 900, 30, 1450); up(R('cta'), 900, 30, 1550);
-    await up(R('socials'), 900, 30, 1650);
+    anim(R('fade'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT);
+    word('w1', 0); word('w2', 140); word('w3', 280); word('w4', 420);
+    up(R('logo').concat(R('nav'), R('icons')), 900, -16, 450);
+    up(R('perks'), 900, 30, 900); up(R('lead'), 900, 30, 1000); up(R('cta'), 900, 30, 1100);
+    await up(R('socials'), 900, 30, 1200);
+  }
+
+  /* ---------- act 2: the three names land on the back of the bottle, which then turns to face us ---------- */
+  const tween = (ms, fn, ease = t => t) => new Promise(res => {
+    const t0 = performance.now();
+    const step = now => { const t = Math.min(1, (now - t0) / ms); fn(ease(t)); t < 1 ? requestAnimationFrame(step) : res(); };
+    requestAnimationFrame(step);
+  });
+  const inOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const LIFT = -34;                                       // the bottle hovers a little before it settles on the stone
+
+  async function toBottle() {
+    await bottleReady;
+    // the card's header and rule leave; the bottle appears with its back to us
+    anim($('.inci-head'), [{ opacity: 1 }, { opacity: 0 }], 500, EASE_IO);
+    if (B) { turn.rot = Math.PI; show3d(); }
+    await anim(R('bottle'), [{ opacity: 0, translate: `0 ${LIFT - 26}px`, scale: .97 }, { opacity: 1, translate: `0 ${LIFT}px`, scale: 1 }], 900, EASE_OUT);
+
+    // each name flies to its line on the back and is printed there. The flight uses a fixed-position copy of
+    // the word, so the card's own transforms don't get in the way.
+    const progress = [0, 0, 0];
+    const ink = getComputedStyle(keep[0]).color, family = getComputedStyle(keep[0]).fontFamily;
+    await Promise.all(keep.map((el, i) => new Promise(async res => {
+      await wait(i * 260);
+      const r = el.getBoundingClientRect();
+      const fly = document.createElement('span');
+      fly.textContent = el.firstChild.textContent.trim();
+      fly.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:7;pointer-events:none;
+        display:flex;align-items:center;justify-content:center;white-space:nowrap;color:${ink};font-family:${family};
+        font-size:${r.height / 1.25}px;line-height:1;letter-spacing:-.01em;transform-origin:50% 50%`;
+      document.body.appendChild(fly);
+      el.style.visibility = 'hidden';
+      const box = canvas3d.getBoundingClientRect();
+      const row = B ? B.backRow(320 + i * 118) : { x: .5, y: .42 + i * .07, h: .046 };
+      const tx = box.left + row.x * box.width, ty = box.top + row.y * box.height;
+      const k = (box.height * row.h) / (r.height / 1.25);              // printed size ÷ flying size
+      const dx = tx - (r.left + r.width / 2), dy = ty - (r.top + r.height / 2);
+      await anim(fly, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 900, 'cubic-bezier(.55,0,.25,1)');
+      const fade = anim(fly, [{ opacity: 1 }, { opacity: 0 }], 300, 'ease-out');
+      if (B) await tween(320, t => { progress[i] = t; B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], progress); draw3d(); });
+      await fade; fly.remove();
+      res();
+    })));
+    inci.style.visibility = 'hidden';
+    await wait(250);
+
+    // the bottle turns to face us and settles onto the stone as it rises into place
+    anim(R('stone'), [{ opacity: 0, translate: '0 140px' }, { opacity: 1, translate: '0 0' }], 1700, EASE_OUT, 200);
+    anim(R('bottle'), [{ translate: `0 ${LIFT}px` }, { translate: '0 0' }], 1900, EASE_IO, 150);
+    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 900, EASE_OUT, 1200);
+    if (B) await tween(2100, t => { turn.rot = Math.PI + Math.PI * t; draw3d(); }, inOut);
+    else await wait(1900);
+    turn.rot = 0; draw3d();
   }
 
   async function intro() {
@@ -120,15 +210,15 @@
     await anim(keep, [{ color: getComputedStyle(list).color }, { color: getComputedStyle(document.body).getPropertyValue('--olive') || '#626d3a' }], 450, 'ease-out');
     relabel('NOVA serum');
     await gather();
-    await wait(1100);
-    anim($('.inci-card'), [{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 -18px' }], 700, EASE_IO);
-    await wait(380);
+    await wait(700);
+    await toBottle();
     await hero();
     inci.remove();
     root.classList.remove('intro');
+    if (B) enableHover();
   }
 
-  if (reduce) { inci.remove(); root.classList.remove('intro'); return; }
+  if (reduce) { inci.remove(); root.classList.remove('intro'); bottleReady.then(b => { if (b) { show3d(); enableHover(); } }); return; }
   const decoded = $$('.stage img').map(img => (img.decode ? img.decode() : Promise.resolve()).catch(() => {}));
   Promise.all([document.fonts ? document.fonts.ready : null, ...decoded]).then(intro);
 })();
