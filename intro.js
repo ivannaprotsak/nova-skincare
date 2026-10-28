@@ -52,7 +52,7 @@
     setTimeout(() => res(null), 6000);            // not loaded yet: the intro carries on with the flat render
   }).then(adopt);
   // no drawing until the bottle is on screen: the first draw compiles the shaders, which would stutter the list animation
-  function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(2, window.devicePixelRatio || 1)); if (bottleBox.classList.contains('is-3d')) draw3d(); } }
+  function size3d() { if (B) { B.resize(489.33 * view.s, 734 * view.s, Math.min(1.5, window.devicePixelRatio || 1)); /* 1.5× is sharp enough for frosted glass, about half the GPU work of 2× */ if (bottleBox.classList.contains('is-3d')) draw3d(); } }
   function draw3d() { if (!B) return; B.bottle.rotation.y = turn.rot; B.render(); }
   function show3d() { if (B && !bottleBox.classList.contains('is-3d')) { draw3d(); bottleBox.classList.add('is-3d'); } }
   // eased spin towards turn.target; renders only while it moves
