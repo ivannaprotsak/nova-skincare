@@ -1,5 +1,5 @@
 // Starts the 3D bottle and hands it to intro.js (window.__novaBottle). Without WebGL the flat render stays.
-import { createBottle } from './bottle3d.js';
+import { createBottle } from './bottle3d.js?v=20261028b';
 
 const done = api => (window.__novaBottle ? window.__novaBottle(api) : (window.__novaBottleEarly = api));
 try {
