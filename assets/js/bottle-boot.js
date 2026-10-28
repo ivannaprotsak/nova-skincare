@@ -8,7 +8,7 @@ try {
   await new Promise(r => (window.requestIdleCallback ? requestIdleCallback(r, { timeout: 1500 }) : setTimeout(r, 600)));
   if (document.fonts) await Promise.all([document.fonts.load('400 92px Inter'), document.fonts.load('500 30px Inter')]).catch(() => {});
   const labelUrl = new URL('assets/img/label-front.webp', document.baseURI).href;
-  const { createBottle } = await import('./bottle3d.js?v=20261028c');   // three.js loads here, not with the page
+  const { createBottle } = await import('./bottle3d.js?v=20261028d');   // three.js loads here, not with the page
   done(await createBottle(canvas, { labelUrl, pixelRatio: Math.min(1.5, window.devicePixelRatio || 1) }));
 } catch (e) {
   console.warn('NOVA: 3D bottle unavailable, keeping the flat render.', e);
