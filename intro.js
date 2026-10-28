@@ -9,11 +9,11 @@
      Figma "Design" (58:170), 27 Oct: the content runs from x 50 to x 1870, so the side margins are 50px.
      Width decides the scale so those margins stay exactly 50px on screen; the logo lines up with the headline,
      the header tools with the headline's right edge and the socials. On short windows the scale drops so the
-     headline keeps at least 150px below the header (header bottom 100, headline caps 258, stage px); the
+     headline keeps at least 150px below the header (header bottom 100, headline caps 234, stage px); the
      content then stays centred and the header follows its edges. */
   let view = { s: 1, x: 0, y: 0, w: 1920, h: 1080 };
   const FOOT = { x: 1146.26, y: 991 };     // where the bottle stands on the stone (stage px)
-  const MARGIN = 50, CONTENT = 1820, HEAD = 100, CAPS = 258, MIN_GAP = 150;
+  const MARGIN = 50, CONTENT = 1820, HEAD = 100, CAPS = 234, MIN_GAP = 134;  // the 28 Oct frame itself has 134px between header and headline   // headline caps: LESS at top 226 + 8
   function fit() {
     const w = viewport.clientWidth, h = viewport.clientHeight;
     const s = Math.max(.1, Math.min((w - 2 * MARGIN) / CONTENT, (h - MIN_GAP) / (1080 - CAPS + HEAD)));
@@ -41,7 +41,7 @@
   let B = null;
   const turn = { rot: 0, target: 0, raf: 0, last: 0 };
   let introOver = false;
-  const adopt = api => { B = api; if (B) { size3d(); B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], introOver ? [1, 1, 1] : [0, 0, 0]); } return B; };
+  const adopt = api => { B = api; if (B) { size3d(); B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], [1, 1, 1]); } return B; };
   const bottleReady = new Promise(res => {
     if ('__novaBottleEarly' in window) return res(window.__novaBottleEarly);
     window.__novaBottle = api => {
@@ -128,10 +128,7 @@
     const K = 1.6;                                               // the three names grow as they gather
     const widths = rects.map((r, i) => (r.width - sepW[i]) * K);
     const total = widths.reduce((a, b) => a + b, 0) + gap * (keep.length - 1);
-    // centre the line between the card's left edge and the bottle's silhouette, so the bottle never covers it
-    const hit = $('#bottleHit').getBoundingClientRect();
-    const right = Math.min(box.right, hit.left - 40);
-    let x = box.left + Math.max(0, (right - box.left - total) / 2);
+    let x = box.left + (box.width - total) / 2;
     const y = box.top + box.height / 2;
     anim(seps, [{ opacity: 1 }, { opacity: 0 }], 220, 'ease-out');
     await Promise.all(keep.map((el, i) => {
@@ -149,66 +146,18 @@
 
   /* ---------- the hero ---------- */
   async function hero() {
+    await Promise.race([bottleReady, wait(1200)]);
     const up = (els, ms, dy = 36, delay = 0) => anim(els, [{ opacity: 0, translate: `0 ${dy}px` }, { opacity: 1, translate: '0 0' }], ms, EASE_OUT, delay);
     const word = (k, delay) => { $(`[data-r=${k}]`).style.opacity = 1; return anim($(`[data-r=${k}] span`), [{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }], 1000, EASE_OUT, delay); };
-    anim(R('fade'), [{ opacity: 0 }, { opacity: 1 }], 1600, EASE_OUT);
-    word('w1', 0); word('w2', 140); word('w3', 280); word('w4', 420);
-    up(R('logo').concat(R('nav'), R('icons')), 900, -16, 450);
-    up(R('perks'), 900, 30, 900); up(R('lead'), 900, 30, 1000); up(R('cta'), 900, 30, 1100);
-    await up(R('socials'), 900, 30, 1200);
-  }
-
-  /* ---------- act 2: the three names land on the back of the bottle, which then turns to face us ---------- */
-  const tween = (ms, fn, ease = t => t) => new Promise(res => {
-    const t0 = performance.now();
-    const step = now => { const t = Math.min(1, (now - t0) / ms); fn(ease(t)); t < 1 ? requestAnimationFrame(step) : res(); };
-    requestAnimationFrame(step);
-  });
-  const inOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  const LIFT = -34;                                       // the bottle hovers a little before it settles on the stone
-
-  async function toBottle() {
-    await bottleReady;
-    // the card's header and rule leave; the bottle appears with its back to us
-    anim($('.inci-head'), [{ opacity: 1 }, { opacity: 0 }], 350, EASE_IO);
-    if (B) { turn.rot = Math.PI; show3d(); }
-    await anim(R('bottle'), [{ opacity: 0, translate: `0 ${LIFT - 26}px`, scale: .97 }, { opacity: 1, translate: `0 ${LIFT}px`, scale: 1 }], 600, EASE_OUT);
-
-    // each name flies to its line on the back and is printed there. The flight uses a fixed-position copy of
-    // the word, so the card's own transforms don't get in the way.
-    const progress = [0, 0, 0];
-    const ink = getComputedStyle(keep[0]).color, family = getComputedStyle(keep[0]).fontFamily;
-    await Promise.all(keep.map((el, i) => new Promise(async res => {
-      await wait(i * 110);
-      const r = el.getBoundingClientRect();
-      const fly = document.createElement('span');
-      fly.textContent = el.firstChild.textContent.trim();
-      fly.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:7;pointer-events:none;
-        display:flex;align-items:center;justify-content:center;white-space:nowrap;color:${ink};font-family:${family};
-        font-size:${r.height / 1.25}px;line-height:1;letter-spacing:-.01em;transform-origin:50% 50%`;
-      document.body.appendChild(fly);
-      el.style.visibility = 'hidden';
-      const box = canvas3d.getBoundingClientRect();
-      const row = B ? B.backRow(320 + i * 118) : { x: .5, y: .42 + i * .07, h: .046 };
-      const tx = box.left + row.x * box.width, ty = box.top + row.y * box.height;
-      const k = (box.height * row.h) / (r.height / 1.25);              // printed size ÷ flying size
-      const dx = tx - (r.left + r.width / 2), dy = ty - (r.top + r.height / 2);
-      await anim(fly, [{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 560, 'cubic-bezier(.55,0,.25,1)');
-      const fade = anim(fly, [{ opacity: 1 }, { opacity: 0 }], 200, 'ease-out');
-      if (B) await tween(200, t => { progress[i] = t; B.drawBack(['Aqua', 'Glycerin', 'Panthenol'], progress); draw3d(); });
-      await fade; fly.remove();
-      res();
-    })));
-    inci.style.visibility = 'hidden';
-    await wait(80);
-
-    // the bottle turns to face us and settles onto the stone as it rises into place
-    anim(R('stone'), [{ opacity: 0, translate: '0 140px' }, { opacity: 1, translate: '0 0' }], 1200, EASE_OUT, 100);
-    anim(R('bottle'), [{ translate: `0 ${LIFT}px` }, { translate: '0 0' }], 1300, EASE_IO, 80);
-    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 700, EASE_OUT, 800);
-    if (B) await tween(1300, t => { turn.rot = Math.PI + Math.PI * t; draw3d(); }, inOut);
-    else await wait(1300);
-    turn.rot = 0; draw3d();
+    if (B) { turn.rot = 0; show3d(); }
+    up(R('bottle'), 1200, 46);
+    up(R('stone'), 1300, 120, 120);
+    anim($$('.bottle .el5, .bottle .el6, .bottle .ghost'), [{ opacity: 0 }, { opacity: 1 }], 800, EASE_OUT, 600);
+    anim(R('fade'), [{ opacity: 0 }, { opacity: 1 }], 1400, EASE_OUT, 200);
+    word('w1', 350); word('w2', 470); word('w3', 590); word('w4', 710);
+    up(R('logo').concat(R('nav'), R('icons')), 800, -16, 700);
+    up(R('perks'), 800, 30, 1050); up(R('lead'), 800, 30, 1130); up(R('cta'), 800, 30, 1210);
+    await up(R('socials'), 800, 30, 1290);
   }
 
   async function intro() {
@@ -220,8 +169,9 @@
     await anim(keep, [{ color: getComputedStyle(list).color }, { color: getComputedStyle(document.body).getPropertyValue('--olive') || '#626d3a' }], 300, 'ease-out');
     relabel('NOVA serum');
     await gather();
-    await wait(200);
-    await toBottle();
+    await wait(900);
+    anim($('.inci-card'), [{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 -18px' }], 600, EASE_IO);
+    await wait(300);
     await hero();
     inci.remove();
     root.classList.remove('intro');
